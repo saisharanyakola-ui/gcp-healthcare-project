@@ -5,7 +5,7 @@ from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
 # Define constants
-PROJECT_ID = "avd-databricks-demo"
+PROJECT_ID = "gcp-data-engineering-483804"
 LOCATION = "US"
 SQL_FILE_PATH_1 = "/home/airflow/gcs/data/BQ/bronze.sql"
 SQL_FILE_PATH_2 = "/home/airflow/gcs/data/BQ/silver.sql"
@@ -22,12 +22,12 @@ GOLD_QUERY = read_sql_file(SQL_FILE_PATH_3)
 
 # Define default arguments
 ARGS = {
-    "owner": "SHAIK SAIDHUL",
+    "owner": "AJAY GIRI",
     "start_date": None,
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
-    "email": ["***@gmail.com"],
+    "email": ["ajaygiri6078@gmail.com"],
     "email_on_success": False,
     "retries": 1,
     "retry_delay": timedelta(minutes=5)
@@ -45,6 +45,9 @@ with DAG(
     # Task to create bronze table
     bronze_tables = BigQueryInsertJobOperator(
         task_id="bronze_tables",
+        project_id=PROJECT_ID,
+        location=LOCATION,
+        gcp_conn_id="google_cloud_default",
         configuration={
             "query": {
                 "query": BRONZE_QUERY,
@@ -57,6 +60,9 @@ with DAG(
     # Task to create silver table
     silver_tables = BigQueryInsertJobOperator(
         task_id="silver_tables",
+        project_id=PROJECT_ID,
+        location=LOCATION,
+        gcp_conn_id="google_cloud_default",
         configuration={
             "query": {
                 "query": SILVER_QUERY,
@@ -69,6 +75,9 @@ with DAG(
     # Task to create gold table
     gold_tables = BigQueryInsertJobOperator(
         task_id="gold_tables",
+        project_id=PROJECT_ID,
+        location=LOCATION,
+        gcp_conn_id="google_cloud_default",
         configuration={
             "query": {
                 "query": GOLD_QUERY,
