@@ -26,10 +26,10 @@ BQ_TEMP_PATH = "us-central1-my-airflow-b3e11ed6-bucket/temp/"
 
 # MySQL Configuration
 MYSQL_CONFIG = {
-    "url": "jdbc:mysql://34.59.188.6:3306/hospital_b_db?useSSL=false&allowPublicKeyRetrieval=true",
+    "url": "jdbc:mysql://34.57.108.23/hospital_b_db?useSSL=false&allowPublicKeyRetrieval=true",
     "driver": "com.mysql.cj.jdbc.Driver",
     "user": "myuser",
-    "password": "mypass"
+    "password": "Temp123!"
 }
 
 # ------------------------------------------------------------------------------------------------------------------#
