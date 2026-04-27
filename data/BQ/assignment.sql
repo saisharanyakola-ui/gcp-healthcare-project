@@ -35,4 +35,3 @@ WHERE c.is_current = TRUE
 GROUP BY c.PayorID, c.PayorType;
 
 
---ashok
