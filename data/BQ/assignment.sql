@@ -33,3 +33,6 @@ SELECT
 FROM `avd-databricks-demo.silver_dataset.claims` c
 WHERE c.is_current = TRUE
 GROUP BY c.PayorID, c.PayorType;
+
+
+--ashok
