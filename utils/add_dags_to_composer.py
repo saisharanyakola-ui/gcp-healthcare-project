@@ -5,59 +5,149 @@ import tempfile
 from shutil import copytree, ignore_patterns
 from google.cloud import storage
 
-def _create_file_list(directory: str, name_replacement: str) -> tuple[str, list[str]]:
-    """Copies relevant files to a temporary directory and returns the list."""
+# =====================================================
+# DEFAULT CONFIGURATION (Updated with your values)
+# =====================================================
+
+PROJECT_ID = "project-00e61840-f4f1-4e1d-ac8"
+COMPOSER_BUCKET = "us-central1-my-airflow-b3e11ed6-bucket"
+CLUSTER_NAME = "my-demo-cluster2"
+
+# =====================================================
+# PREPARE FILE LIST
+# =====================================================
+
+def _create_file_list(directory: str, name_replacement: str):
+    """
+    Copies relevant files to a temporary folder
+    and returns file list.
+    """
+
     if not os.path.exists(directory):
-        print(f"⚠️ Warning: Directory '{directory}' does not exist. Skipping upload.")
-        return "", []  # Return empty values, so the script doesn't crash.
+        print(f"⚠️ Directory not found: {directory}")
+        return "", []
 
     temp_dir = tempfile.mkdtemp()
-    files_to_ignore = ignore_patterns("__init__.py", "*_test.py")
-    copytree(directory, f"{temp_dir}/", ignore=files_to_ignore, dirs_exist_ok=True)
-    
-    # Ensure only files are returned
-    files = [f for f in glob.glob(f"{temp_dir}/**", recursive=True) if os.path.isfile(f)]
+
+    files_to_ignore = ignore_patterns(
+        "__init__.py",
+        "*_test.py",
+        "__pycache__"
+    )
+
+    copytree(
+        directory,
+        temp_dir,
+        ignore=files_to_ignore,
+        dirs_exist_ok=True
+    )
+
+    files = [
+        f for f in glob.glob(
+            f"{temp_dir}/**",
+            recursive=True
+        )
+        if os.path.isfile(f)
+    ]
+
     return temp_dir, files
 
-def upload_to_composer(directory: str, bucket_name: str, name_replacement: str) -> None:
-    """Uploads DAGs or Data files to Composer's Cloud Storage bucket."""
-    temp_dir, files = _create_file_list(directory, name_replacement)
+# =====================================================
+# UPLOAD TO COMPOSER BUCKET
+# =====================================================
+
+def upload_to_composer(
+    directory: str,
+    bucket_name: str,
+    target_folder: str
+):
+    """
+    Upload files to Composer bucket
+    """
+
+    temp_dir, files = _create_file_list(
+        directory,
+        target_folder
+    )
 
     if not files:
-        print(f"⚠️ No files found in '{directory}'. Skipping upload.")
-        return  # Exit if no files are available.
+        print(f"⚠️ No files found in {directory}")
+        return
 
-    storage_client = storage.Client()
+    storage_client = storage.Client(project=PROJECT_ID)
     bucket = storage_client.bucket(bucket_name)
 
     for file in files:
-        file_gcs_path = file.replace(f"{temp_dir}/", name_replacement)
+
+        gcs_path = file.replace(
+            f"{temp_dir}/",
+            target_folder
+        )
+
         try:
-            blob = bucket.blob(file_gcs_path)
-            blob.upload_from_filename(file)  # Ensure only files are uploaded
-            print(f"✅ Uploaded {file} to gs://{bucket_name}/{file_gcs_path}")
-        except IsADirectoryError:
-            print(f"⚠️ Skipping directory: {file}")
-        except FileNotFoundError:
-            print(f"❌ Error: {file} not found. Ensure directory structure is correct.")
-            raise
+            blob = bucket.blob(gcs_path)
+            blob.upload_from_filename(file)
+
+            print(
+                f"✅ Uploaded: {file} "
+                f"-> gs://{bucket_name}/{gcs_path}"
+            )
+
+        except Exception as e:
+            print(f"❌ Failed Upload {file}: {str(e)}")
+
+# =====================================================
+# MAIN
+# =====================================================
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Upload DAGs and data to Composer bucket.")
-    parser.add_argument("--dags_directory", help="Path to DAGs directory.")
-    parser.add_argument("--dags_bucket", help="GCS bucket name for DAGs.")
-    parser.add_argument("--data_directory", help="Path to data directory.")
+
+    parser = argparse.ArgumentParser(
+        description="Upload DAGs / Data to Composer"
+    )
+
+    parser.add_argument(
+        "--dags_directory",
+        help="Local DAG folder path"
+    )
+
+    parser.add_argument(
+        "--data_directory",
+        help="Local Data folder path"
+    )
+
+    parser.add_argument(
+        "--bucket",
+        default=COMPOSER_BUCKET,
+        help="Composer bucket name"
+    )
 
     args = parser.parse_args()
 
-    print(args.dags_directory, args.dags_bucket, args.data_directory)
+    print("===================================")
+    print("PROJECT :", PROJECT_ID)
+    print("CLUSTER :", CLUSTER_NAME)
+    print("BUCKET  :", args.bucket)
+    print("===================================")
 
-    if args.dags_directory and os.path.exists(args.dags_directory):
-        upload_to_composer(args.dags_directory, args.dags_bucket, "dags/")
+    # Upload DAGs
+    if args.dags_directory:
+        upload_to_composer(
+            args.dags_directory,
+            args.bucket,
+            "dags/"
+        )
     else:
-        print(f"⚠️ Skipping DAGs upload: '{args.dags_directory}' directory not found.")
+        print("⚠️ DAG directory not provided")
 
-    if args.data_directory and os.path.exists(args.data_directory):
-        upload_to_composer(args.data_directory, args.dags_bucket, "data/")
+    # Upload Data
+    if args.data_directory:
+        upload_to_composer(
+            args.data_directory,
+            args.bucket,
+            "data/"
+        )
     else:
-        print(f"⚠️ Skipping Data upload: '{args.data_directory}' directory not found.")
+        print("⚠️ Data directory not provided")
+
+    print("✅ Upload Process Completed")

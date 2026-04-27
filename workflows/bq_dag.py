@@ -4,14 +4,26 @@ from datetime import timedelta
 from airflow.utils.dates import days_ago
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
-# Define constants
-PROJECT_ID = "avd-databricks-demo"
+# =====================================================
+# PROJECT CONFIGURATION (Updated)
+# =====================================================
+
+PROJECT_ID = "project-00e61840-f4f1-4e1d-ac8"
+REGION = "us-central1"
 LOCATION = "US"
+
+COMPOSER_BUCKET = "us-central1-my-airflow-b3e11ed6-bucket"
+CLUSTER_NAME = "my-demo-cluster2"
+
+# SQL FILE PATHS (inside Composer bucket mounted path)
 SQL_FILE_PATH_1 = "/home/airflow/gcs/data/BQ/bronze.sql"
 SQL_FILE_PATH_2 = "/home/airflow/gcs/data/BQ/silver.sql"
 SQL_FILE_PATH_3 = "/home/airflow/gcs/data/BQ/gold.sql"
 
-# Read SQL query from file
+# =====================================================
+# READ SQL FILES
+# =====================================================
+
 def read_sql_file(file_path):
     with open(file_path, "r") as file:
         return file.read()
@@ -20,63 +32,83 @@ BRONZE_QUERY = read_sql_file(SQL_FILE_PATH_1)
 SILVER_QUERY = read_sql_file(SQL_FILE_PATH_2)
 GOLD_QUERY = read_sql_file(SQL_FILE_PATH_3)
 
-# Define default arguments
+# =====================================================
+# DEFAULT ARGUMENTS
+# =====================================================
+
 ARGS = {
     "owner": "SHAIK SAIDHUL",
-    "start_date": None,
     "depends_on_past": False,
+    "start_date": days_ago(1),
     "email_on_failure": False,
     "email_on_retry": False,
-    "email": ["***@gmail.com"],
-    "email_on_success": False,
     "retries": 1,
     "retry_delay": timedelta(minutes=5)
 }
 
-# Define the DAG
+# =====================================================
+# DAG DEFINITION
+# =====================================================
+
 with DAG(
-    dag_id="bigquery_dag",
-    schedule_interval=None,
-    description="DAG to run the bigquery jobs",
+    dag_id="bigquery_etl_pipeline",
     default_args=ARGS,
-    tags=["gcs", "bq", "etl", "marvel"]
+    description="Bronze to Silver to Gold BigQuery ETL Pipeline",
+    schedule_interval=None,
+    catchup=False,
+    tags=["bigquery", "composer", "etl", "healthcare"]
 ) as dag:
 
-    # Task to create bronze table
+    # -------------------------------------------------
+    # Bronze Layer
+    # -------------------------------------------------
+
     bronze_tables = BigQueryInsertJobOperator(
         task_id="bronze_tables",
         configuration={
             "query": {
                 "query": BRONZE_QUERY,
                 "useLegacySql": False,
-                "priority": "BATCH",
+                "priority": "BATCH"
             }
         },
+        location=LOCATION
     )
 
-    # Task to create silver table
+    # -------------------------------------------------
+    # Silver Layer
+    # -------------------------------------------------
+
     silver_tables = BigQueryInsertJobOperator(
         task_id="silver_tables",
         configuration={
             "query": {
                 "query": SILVER_QUERY,
                 "useLegacySql": False,
-                "priority": "BATCH",
+                "priority": "BATCH"
             }
         },
+        location=LOCATION
     )
 
-    # Task to create gold table
+    # -------------------------------------------------
+    # Gold Layer
+    # -------------------------------------------------
+
     gold_tables = BigQueryInsertJobOperator(
         task_id="gold_tables",
         configuration={
             "query": {
                 "query": GOLD_QUERY,
                 "useLegacySql": False,
-                "priority": "BATCH",
+                "priority": "BATCH"
             }
         },
+        location=LOCATION
     )
 
-# Define dependencies
-bronze_tables >> silver_tables >> gold_tables
+    # =================================================
+    # PIPELINE FLOW
+    # =================================================
+
+    bronze_tables >> silver_tables >> gold_tables
