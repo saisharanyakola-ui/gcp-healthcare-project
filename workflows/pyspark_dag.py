@@ -11,7 +11,7 @@ from airflow.providers.google.cloud.operators.dataproc import (
 
 # define the variables
 PROJECT_ID = "project-00e61840-f4f1-4e1d-ac8"
-REGION = "us-central1"
+REGION = "us-east1"
 CLUSTER_NAME = "my-demo-cluster2"
 COMPOSER_BUCKET = "us-central1-my-airflow-b3e11ed6-bucket"
 
@@ -44,7 +44,7 @@ PYSPARK_JOB_4 = {
 }
 
 ARGS = {
-    "owner": "SHAIK SAIDHUL",
+    "owner": "Ashok",
     "start_date": days_ago(1),
     "depends_on_past": False,
     "email_on_failure": False,
