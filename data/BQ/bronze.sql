@@ -3,31 +3,31 @@
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.departments_ha` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-a/departments/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-a/departments/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.encounters_ha` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-a/encounters/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-a/encounters/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.patients_ha` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-a/patients/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-a/patients/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.providers_ha` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-a/providers/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-a/providers/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.transactions_ha` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-a/transactions/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-a/transactions/*.json']
 );
 
 ---------------------------------------------------------------------------------------------------------------------------
@@ -35,31 +35,31 @@ OPTIONS (
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.departments_hb` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-b/departments/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-b/departments/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.encounters_hb` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-b/encounters/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-b/encounters/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.patients_hb` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-b/patients/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-b/patients/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.providers_hb` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-b/providers/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-b/providers/*.json']
 );
 
 CREATE EXTERNAL TABLE IF NOT EXISTS `project-00e61840-f4f1-4e1d-ac8.bronze_dataset.transactions_hb` 
 OPTIONS (
   format = 'JSON',
-  uris = ['gs://healthcare-bucket-24/landing/hospital-b/transactions/*.json']
+  uris = ['gs://healthcare-bucket-24/landing/hosp-b/transactions/*.json']
 );
 
 ---------------------------------------------------------------------------------------------------------------------------
